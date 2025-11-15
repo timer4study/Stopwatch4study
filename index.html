@@ -6,6 +6,7 @@
   <title>Study Stopwatch & Pomodoro Timer—stopwatch4study</title>
   <meta name="description" content="A clean and simple study stopwatch and pomodoro timer. Perfect for students who want to focus more while studying." />
   <meta name="keywords" content="study timer, stopwatch online, pomodoro study timer, focus timer, student timer" />
+
   <style>
     :root{--bg:#0f1724;--card:#0b1220;--accent:#60a5fa;--muted:#94a3b8;--round:14px}
     html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,#071129,#07182a);color:#e6eef8}
@@ -26,6 +27,16 @@
   </style>
 </head>
 <body>
+
+  <!-- SOUND ALERTS -->
+  <audio id="sweetSound">
+    <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
+  </audio>
+
+  <audio id="musicBoxSound">
+    <source src="https://actions.google.com/sounds/v1/alarms/music_box.ogg" type="audio/ogg">
+  </audio>
+
   <div class="wrap">
     <h1>Study Timer — Stopwatch & Pomodoro</h1>
 
@@ -67,216 +78,205 @@
 
     <div class="status" id="status">Ready — select a mode and press Start.</div>
 
-    <div class="footer">Features: Start / Pause / Reset / Lap, Pomodoro cycles, mobile-friendly. Labels in English.</div>
+    <div class="footer">Features: Start / Pause / Reset / Lap, Pomodoro cycles, mobile-friendly.</div>
   </div>
 
-  <script>
-    // State
-    let running = false;
-    let startTime = 0;     // timestamp when started or resumed
-    let elapsed = 0;       // elapsed ms accumulated (when paused)
-    let timerInterval = null;
+<script>
 
-    // Pomodoro state
-    let pomActive = false;
-    let pomTimerEnd = 0;
-    let currentCycle = 0;
-    let inWork = true;
-    let requestedCycles = 4;
+let running = false;
+let startTime = 0;
+let elapsed = 0;
+let timerInterval = null;
 
-    // DOM
-    const timeDisplay = document.getElementById('timeDisplay');
-    const startBtn = document.getElementById('startBtn');
-    const pauseBtn = document.getElementById('pauseBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const lapBtn = document.getElementById('lapBtn');
-    const status = document.getElementById('status');
-    const modeChip = document.getElementById('modeChip');
-    const startPomBtn = document.getElementById('startPomBtn');
-    const stopPomBtn = document.getElementById('stopPomBtn');
+// POMODORO
+let pomActive = false;
+let pomTimerEnd = 0;
+let currentCycle = 0;
+let inWork = true;
+let requestedCycles = 4;
 
-    const workMins = document.getElementById('workMins');
-    const breakMins = document.getElementById('breakMins');
-    const cyclesInput = document.getElementById('cycles');
+const timeDisplay = document.getElementById('timeDisplay');
+const startBtn = document.getElementById('startBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const resetBtn = document.getElementById('resetBtn');
+const lapBtn = document.getElementById('lapBtn');
+const status = document.getElementById('status');
+const modeChip = document.getElementById('modeChip');
 
-    // Utility to format ms -> HH:MM:SS.cc
-    function fmt(ms){
-      const totalCentis = Math.floor(ms/10);
-      const centi = totalCentis % 100;
-      const totalSec = Math.floor(totalCentis/100);
-      const sec = totalSec % 60;
-      const totalMin = Math.floor(totalSec/60);
-      const min = totalMin % 60;
-      const hrs = Math.floor(totalMin/60);
-      const z = v => v.toString().padStart(2,'0');
-      return `${z(hrs)}:${z(min)}:${z(sec)}.${centi.toString().padStart(2,'0')}`;
-    }
+const startPomBtn = document.getElementById('startPomBtn');
+const stopPomBtn = document.getElementById('stopPomBtn');
+const workMins = document.getElementById('workMins');
+const breakMins = document.getElementById('breakMins');
+const cyclesInput = document.getElementById('cycles');
 
-    function updateDisplay(){
-      let ms = elapsed;
-      if(running) ms += Date.now() - startTime;
-      timeDisplay.textContent = fmt(ms);
-    }
 
-    function startStopwatch(){
-      if(running) return;
-      running = true;
-      startTime = Date.now();
-      timerInterval = setInterval(updateDisplay, 40);
-      status.textContent = "Stopwatch running";
-      modeChip.textContent = "STOPWATCH";
-    }
+// AUDIO
+function playSweet(){
+  let s = document.getElementById("sweetSound");
+  s.play(); setTimeout(()=>s.play(),1200); setTimeout(()=>s.play(),2400);
+}
 
-    function pauseStopwatch(){
-      if(!running) return;
-      elapsed += Date.now() - startTime;
-      running = false;
-      clearInterval(timerInterval);
-      status.textContent = "Paused";
-      updateDisplay();
-    }
+function playMusicBox(){
+  let m = document.getElementById("musicBoxSound");
+  m.play(); setTimeout(()=>m.play(),1200); setTimeout(()=>m.play(),2400);
+}
 
-    function resetStopwatch(){
-      running = false;
-      elapsed = 0;
-      startTime = 0;
-      clearInterval(timerInterval);
-      status.textContent = "Reset";
-      updateDisplay();
-    }
 
-    // Lap (simple visual alert of current time)
-    lapBtn.addEventListener('click', () => {
-      const cur = running ? elapsed + (Date.now()-startTime) : elapsed;
-      const msg = `Lap: ${fmt(cur)}`;
-      // small visual flash using status
-      status.textContent = msg;
-      setTimeout(()=> status.textContent = running ? "Stopwatch running" : "Paused", 1500);
-    });
+// FORMAT
+function fmt(ms){
+  const c = Math.floor(ms/10);
+  const centi = c % 100;
+  const sec = Math.floor(c/100) % 60;
+  const min = Math.floor(c/6000) % 60;
+  const hrs = Math.floor(c/360000);
+  const z = v => v.toString().padStart(2,'0');
+  return `${z(hrs)}:${z(min)}:${z(sec)}.${z(centi)}`;
+}
 
-    // Buttons
-    startBtn.addEventListener('click', () => {
-      if(!pomActive){
-        startStopwatch();
-      } else {
-        // If pom active, start stopwatch to show session elapsed too
-        startStopwatch();
-      }
-    });
+function updateDisplay(){
+  let ms = elapsed;
+  if(running) ms += Date.now()-startTime;
+  timeDisplay.textContent = fmt(ms);
+}
 
-    pauseBtn.addEventListener('click', pauseStopwatch);
-    resetBtn.addEventListener('click', resetStopwatch);
+function startStopwatch(){
+  if(running) return;
+  running = true;
+  startTime = Date.now();
+  timerInterval = setInterval(updateDisplay,40);
+  status.textContent = "Stopwatch running";
+}
 
-    // Pomodoro functions
-    function beep() {
-      // simple short beep using WebAudio on user interaction
-      try{
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = 'sine';
-        o.frequency.value = 880;
-        g.gain.value = 0.0001;
-        o.connect(g); g.connect(ctx.destination);
-        o.start();
-        const now = ctx.currentTime;
-        g.gain.exponentialRampToValueAtTime(0.2, now + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.00001, now + 0.5);
-        o.stop(now + 0.6);
-      }catch(e){
-        // ignore if not allowed
-      }
-    }
+function pauseStopwatch(){
+  if(!running) return;
+  elapsed += Date.now()-startTime;
+  running = false;
+  clearInterval(timerInterval);
+  status.textContent = "Paused";
+  updateDisplay();
+}
 
-    function startPomodoro(){
-      if(pomActive) return;
-      requestedCycles = Math.max(1, parseInt(cyclesInput.value) || 4);
-      currentCycle = 1;
-      inWork = true;
-      pomActive = true;
-      modeChip.textContent = "POMODORO";
-      status.textContent = `Pomodoro: Cycle ${currentCycle}/${requestedCycles} — Work`;
-      // set timer end
-      const mins = Math.max(1, parseInt(workMins.value) || 25);
-      pomTimerEnd = Date.now() + mins*60*1000;
-      // Also start visible stopwatch for session time
+function resetStopwatch(){
+  running = false;
+  elapsed = 0;
+  startTime = 0;
+  clearInterval(timerInterval);
+  updateDisplay();
+  status.textContent = "Reset";
+}
+
+
+// LAP
+lapBtn.addEventListener('click', ()=>{
+  const cur = running ? elapsed + (Date.now()-startTime) : elapsed;
+  const msg = `Lap: ${fmt(cur)}`;
+  status.textContent = msg;
+  setTimeout(()=>status.textContent = running?"Stopwatch running":"Paused",1500);
+});
+
+
+// START / PAUSE / RESET BUTTONS
+startBtn.addEventListener('click', ()=>{
+  startStopwatch();
+});
+pauseBtn.addEventListener('click', pauseStopwatch);
+resetBtn.addEventListener('click', resetStopwatch);
+
+
+// POMODORO
+function startPomodoro(){
+  if(pomActive) return;
+
+  requestedCycles = Math.max(1,parseInt(cyclesInput.value)||4);
+  currentCycle = 1;
+  inWork = true;
+  pomActive = true;
+
+  modeChip.textContent = "POMODORO";
+
+  status.textContent = `Pomodoro: Cycle ${currentCycle}/${requestedCycles} — Work`;
+
+  const mins = Math.max(1, parseInt(workMins.value)||25);
+  pomTimerEnd = Date.now() + mins*60000;
+
+  resetStopwatch();
+  startStopwatch();
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(pomTick,250);
+}
+
+function stopPomodoro(){
+  pomActive = false;
+  inWork = true;
+  currentCycle = 0;
+  clearInterval(timerInterval);
+  resetStopwatch();
+  status.textContent = "Pomodoro stopped";
+  modeChip.textContent = "STOPWATCH";
+}
+
+function pomTick(){
+  const remain = pomTimerEnd - Date.now();
+
+  if(remain <= 0){
+
+    if(inWork){
+      // WORK FINISHED → BREAK STARTS
+      playSweet();
+      status.textContent = "Work finished — Break starts";
+      inWork = false;
+
+      const mins = Math.max(1, parseInt(breakMins.value)||5);
+      pomTimerEnd = Date.now() + mins*60000;
+
       resetStopwatch();
       startStopwatch();
-      if(timerInterval) clearInterval(timerInterval);
-      timerInterval = setInterval(pomTick, 250);
-    }
 
-    function stopPomodoro(){
-      if(!pomActive) return;
-      pomActive = false;
-      inWork = true;
-      currentCycle = 0;
-      clearInterval(timerInterval);
-      resetStopwatch();
-      status.textContent = "Pomodoro stopped";
-      modeChip.textContent = "STOPWATCH";
-    }
+    } else {
+      // BREAK FINISHED → NEW WORK
+      playMusicBox();
 
-    function pomTick(){
-      const remain = pomTimerEnd - Date.now();
-      if(remain <= 0){
-        // end of session
-        beep();
-        if(inWork){
-          // work finished -> break
-          status.textContent = `Work finished — Break starts`;
-          inWork = false;
-          // set break end
-          const mins = Math.max(1, parseInt(breakMins.value) || 5);
-          pomTimerEnd = Date.now() + mins*60*1000;
-          // reset visible stopwatch for break if desired
-          resetStopwatch();
-          startStopwatch();
-        } else {
-          // break finished
-          if(currentCycle >= requestedCycles){
-            // done all cycles
-            beep();
-            status.textContent = `Pomodoro complete: ${requestedCycles} cycles done.`;
-            pomActive = false;
-            modeChip.textContent = "STOPWATCH";
-            // stop stopwatch
-            pauseStopwatch();
-            clearInterval(timerInterval);
-            return;
-          } else {
-            // start next work
-            currentCycle++;
-            inWork = true;
-            status.textContent = `Cycle ${currentCycle}/${requestedCycles} — Work`;
-            const mins = Math.max(1, parseInt(workMins.value) || 25);
-            pomTimerEnd = Date.now() + mins*60*1000;
-            resetStopwatch();
-            startStopwatch();
-          }
-        }
-      } else {
-        // show remaining in status in mm:ss
-        const s = Math.ceil(remain/1000);
-        const mm = Math.floor(s/60).toString().padStart(2,'0');
-        const ss = (s%60).toString().padStart(2,'0');
-        status.textContent = `${inWork ? 'Work' : 'Break'} — ${mm}:${ss} left (Cycle ${currentCycle}/${requestedCycles})`;
+      if(currentCycle >= requestedCycles){
+        status.textContent = `Pomodoro complete: ${requestedCycles} cycles done.`;
+        pomActive = false;
+        modeChip.textContent = "STOPWATCH";
+        pauseStopwatch();
+        clearInterval(timerInterval);
+        return;
       }
-      updateDisplay();
+
+      currentCycle++;
+      inWork = true;
+
+      status.textContent = `Cycle ${currentCycle}/${requestedCycles} — Work`;
+
+      const mins = Math.max(1, parseInt(workMins.value)||25);
+      pomTimerEnd = Date.now() + mins*60000;
+
+      resetStopwatch();
+      startStopwatch();
     }
 
-    startPomBtn.addEventListener('click', () => {
-      // ensure user gesture for audio
-      beep();
-      startPomodoro();
-    });
-    stopPomBtn.addEventListener('click', stopPomodoro);
+  } else {
+    const s = Math.ceil(remain/1000);
+    const mm = Math.floor(s/60).toString().padStart(2,'0');
+    const ss = (s%60).toString().padStart(2,'0');
 
-    // auto update display when idle
-    setInterval(updateDisplay, 200);
+    status.textContent =
+      `${inWork?'Work':'Break'} — ${mm}:${ss} left (Cycle ${currentCycle}/${requestedCycles})`;
+  }
 
-    // initialize
-    updateDisplay();
-  </script>
+  updateDisplay();
+}
+
+startPomBtn.addEventListener('click', startPomodoro);
+stopPomBtn.addEventListener('click', stopPomodoro);
+
+setInterval(updateDisplay,200);
+updateDisplay();
+
+</script>
+
 </body>
-</html>
+      </html>
