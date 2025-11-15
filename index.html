@@ -3,8 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-
-  <title>Study Timer — Stopwatch & Pomodoro</title>
+  <title>Study Stopwatch & Pomodoro Timer—stopwatch4study</title>
 
   <style>
     :root{--bg:#0f1724;--accent:#60a5fa;--muted:#94a3b8}
@@ -15,24 +14,21 @@
       color:#e6eef8;
     }
     .wrap{
-      max-width:400px;
+      max-width:420px;
       margin:30px auto;
       padding:20px;
       background:rgba(255,255,255,0.03);
       border-radius:18px;
     }
-    h1{
-      font-size:20px;
-      margin:0 0 15px;
-      color:var(--accent);
-      text-align:center;
-    }
+    h1{text-align:center;color:var(--accent);font-size:20px;margin-bottom:15px}
+
     .display{
       font-size:42px;
       font-weight:700;
       text-align:center;
       padding:18px 0;
     }
+
     .controls button{
       width:100%;
       padding:12px;
@@ -49,6 +45,7 @@
       border:1px solid rgba(255,255,255,0.1);
       color:var(--muted);
     }
+
     .row{
       margin-top:14px;
       display:flex;
@@ -56,6 +53,7 @@
       flex-wrap:wrap;
     }
     .row div{margin-top:10px}
+
     input{
       width:70px;
       padding:7px;
@@ -64,12 +62,19 @@
       background:transparent;
       color:white;
     }
+
     .small{
       margin-top:10px;
       padding:8px;
       font-size:13px;
     }
-    .status{margin-top:12px;color:var(--muted);font-size:14px}
+
+    .status{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
     .chip{
       padding:6px 10px;
       background:rgba(255,255,255,0.05);
@@ -81,20 +86,25 @@
 
 <body>
 
-<!-- SOUNDS -->
-<audio id="sweet"><source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
-<audio id="music"><source src="https://actions.google.com/sounds/v1/alarms/music_box.ogg"></audio>
+<!-- AUDIO -->
+<audio id="workBeep">
+  <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg">
+</audio>
+
+<audio id="breakBeep">
+  <source src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg">
+</audio>
 
 <div class="wrap">
 
-<h1>Study Timer — Stopwatch & Pomodoro</h1>
+<h1>Study Stopwatch & Pomodoro</h1>
 
 <div class="display" id="time">00:00:00.00</div>
 
 <div class="controls">
-  <button id="s">Start</button>
-  <button id="p" class="secondary">Pause</button>
-  <button id="r" class="secondary">Reset</button>
+  <button id="startBtn">Start</button>
+  <button id="pauseBtn" class="secondary">Pause</button>
+  <button id="resetBtn" class="secondary">Reset</button>
 </div>
 
 <div class="row">
@@ -105,19 +115,19 @@
 </div>
 
 <div class="row">
-  <button id="spm" class="small">Start Pomodoro</button>
-  <button id="stpm" class="small secondary">Stop Pomodoro</button>
+  <button id="startPom" class="small">Start Pomodoro</button>
+  <button id="stopPom" class="small secondary">Stop Pomodoro</button>
   <button id="lap" class="small secondary">Lap</button>
 </div>
 
-<div class="status" id="st">Ready.</div>
+<div class="status" id="status">Ready.</div>
 
 </div>
 
 <script>
 
 /* ---------------- STOPWATCH ---------------- */
-let run=false, start=0, el=0, intv=null;
+let running=false, start=0, elapsed=0, swInt=null;
 
 function fmt(ms){
  let c=Math.floor(ms/10);
@@ -125,64 +135,66 @@ function fmt(ms){
  return `${z(Math.floor(c/360000))}:${z(Math.floor(c/6000)%60)}:${z(Math.floor(c/100)%60)}.${z(c%100)}`;
 }
 
-function upd(){
- let ms=el;
- if(run) ms+=Date.now()-start;
+function update(){
+ let ms=elapsed;
+ if(running) ms+=Date.now()-start;
  document.getElementById("time").textContent=fmt(ms);
 }
 
 function startSW(){
- if(run) return;
- run=true;
+ if(running) return;
+ running=true;
  start=Date.now();
- intv=setInterval(upd,40);
+ swInt=setInterval(update,40);
 }
 
 function pauseSW(){
- if(!run) return;
- el+=Date.now()-start;
- run=false;
- clearInterval(intv);
- upd();
+ if(!running) return;
+ elapsed+=Date.now()-start;
+ running=false;
+ clearInterval(swInt);
+ update();
 }
 
 function resetSW(){
- run=false;
- el=0;
- clearInterval(intv);
- upd();
+ running=false;
+ elapsed=0;
+ clearInterval(swInt);
+ update();
 }
 
-s.onclick=startSW;
-p.onclick=pauseSW;
-r.onclick=resetSW;
+document.getElementById("startBtn").onclick=startSW;
+document.getElementById("pauseBtn").onclick=pauseSW;
+document.getElementById("resetBtn").onclick=resetSW;
+
 
 /* ---------------- POMODORO ---------------- */
 let pom=false, cycle=1, total=4, isWork=true, remain=0, pomInt=null;
 
-function play3x(id){
+function play5x(id){
  let a=document.getElementById(id);
- a.play(); setTimeout(()=>a.play(),1200); setTimeout(()=>a.play(),2400);
+ a.play(); setTimeout(()=>a.play(),900);
+ setTimeout(()=>a.play(),1800);
+ setTimeout(()=>a.play(),2700);
+ setTimeout(()=>a.play(),3600);
 }
 
-spm.onclick=()=>{
+document.getElementById("startPom").onclick=()=>{
 
  if(pom) return;
 
- pom=true;
  cycle=1;
  total=parseInt(cy.value);
  isWork=true;
+ pom=true;
 
  chip.textContent="POMODORO";
+ status.textContent=`Cycle 1/${total} — Work`;
 
- let work=parseInt(wm.value);
- remain=work*60;
+ let w=parseInt(wm.value);
+ remain=w*60;
 
- resetSW();
- startSW();
-
- st.textContent=`Work — ${work} min (Cycle 1/${total})`;
+ resetSW(); startSW();
 
  pomInt=setInterval(()=>{
    remain--;
@@ -190,52 +202,60 @@ spm.onclick=()=>{
    let mm=String(Math.floor(remain/60)).padStart(2,'0');
    let ss=String(remain%60).padStart(2,'0');
 
-   st.textContent=`${isWork?"Work":"Break"} — ${mm}:${ss} left (Cycle ${cycle}/${total})`;
+   status.textContent=`${isWork?"Work":"Break"} — ${mm}:${ss} left (Cycle ${cycle}/${total})`;
 
    if(remain<=0){
 
-     /* WORK FINISHED */
      if(isWork){
-       play3x("sweet");
+       play5x("workBeep");
        isWork=false;
 
        let brk=parseInt(bm.value);
-       if(cycle % 4 === 0) brk = 15;
+       if(cycle%4===0) brk=15;
 
-       remain = brk * 60;
+       remain=brk*60;
+       status.textContent="Work finished — Break starts";
+
        resetSW(); startSW();
-       st.textContent=`Work finished — Break starts`;
 
      } else {
-       /* BREAK FINISHED */
-       play3x("music");
-       cycle++;
+       play5x("breakBeep");
 
-       if(cycle > total){
-         st.textContent=`Pomodoro completed (${total} cycles)`;
-         clearInterval(pomInt);
+       cycle++;
+       if(cycle>total){
+         status.textContent=`Pomodoro complete (${total} cycles)`;
          pom=false;
          chip.textContent="STOPWATCH";
+         clearInterval(pomInt);
          pauseSW();
          return;
        }
 
-       isWork = true;
-       let work=parseInt(wm.value);
-       remain = work * 60;
+       isWork=true;
+       let w=parseInt(wm.value);
+       remain=w*60;
+       status.textContent=`Break finished — Work starts`;
+
        resetSW(); startSW();
-       st.textContent=`Break finished — Work starts`;
      }
    }
+
  },1000);
+
 };
 
-stpm.onclick=()=>{
- clearInterval(pomInt);
+document.getElementById("stopPom").onclick=()=>{
  pom=false;
  chip.textContent="STOPWATCH";
- st.textContent="Pomodoro stopped.";
+ clearInterval(pomInt);
  pauseSW();
+ status.textContent="Pomodoro stopped";
+};
+
+document.getElementById("lap").onclick=()=>{
+ let now=running?elapsed+(Date.now()-start):elapsed;
+ status.textContent=`Lap: ${fmt(now)}`;
+ setTimeout(()=>status.textContent="",1500);
 };
 
 </script>
