@@ -3,182 +3,219 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Study Stopwatch & Pomodoro Timer—stopwatch4study</title>
-  <meta name="description" 
-        content="A clean and simple study stopwatch and pomodoro timer. Perfect for students who want to focus more while studying." />
-  <meta name="keywords" 
-        content="study timer, stopwatch online, pomodoro study timer, focus timer, student timer" />
+  <title>Study Stopwatch & Pomodoro</title>
 
   <style>
     :root{--bg:#0f1724;--accent:#60a5fa;--muted:#94a3b8}
-    html,body{height:100%;margin:0;font-family:system-ui;background:#071129;color:#e6eef8}
-    .wrap{max-width:900px;margin:28px auto;padding:18px;background:rgba(255,255,255,0.03);border-radius:18px}
-    h1{margin:0 0 12px;font-size:20px;color:var(--accent)}
-    .display{font-size:42px;font-weight:700;padding:18px 12px;border-radius:12px;text-align:center}
-    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-    button{flex:1;padding:12px;border-radius:12px;border:0;background:var(--accent);color:#04243b;font-weight:700;font-size:16px}
-    button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
-    .small{font-size:13px;padding:8px}
-    .row{display:flex;gap:12px;align-items:center;margin-top:12px;flex-wrap:wrap}
-    input[type=number]{width:70px;padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
-    .status{margin-top:10px;color:var(--muted);font-size:14px}
-    .chip{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.05);font-weight:600}
+    body{
+      margin:0;
+      font-family:system-ui;
+      background:#071129;
+      color:#e6eef8;
+    }
+    .wrap{
+      max-width:400px;
+      margin:30px auto;
+      padding:20px;
+      background:rgba(255,255,255,0.03);
+      border-radius:18px;
+    }
+    h1{font-size:20px;margin:0 0 15px;color:var(--accent);text-align:center}
+
+    .display{
+      font-size:42px;
+      font-weight:700;
+      text-align:center;
+      padding:18px 0;
+    }
+
+    /* OLD VERTICAL LAYOUT */
+    .controls button{
+      width:100%;
+      padding:12px;
+      margin-top:8px;
+      background:var(--accent);
+      color:#04243b;
+      border:0;
+      border-radius:12px;
+      font-weight:700;
+      font-size:16px;
+    }
+    button.secondary{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.1);
+      color:var(--muted);
+    }
+
+    .row{
+      margin-top:14px;
+      display:flex;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .row div{margin-top:10px}
+
+    input{
+      width:70px;
+      padding:7px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.05);
+      background:transparent;
+      color:white;
+    }
+
+    .small{
+      margin-top:10px;
+      padding:8px;
+      font-size:13px;
+    }
+
+    .status{margin-top:12px;color:var(--muted);font-size:14px}
+    .chip{
+      padding:6px 10px;
+      background:rgba(255,255,255,0.05);
+      border-radius:999px;
+      font-weight:600;
+    }
   </style>
 </head>
+
 <body>
 
-  <!-- SOUND ALERTS -->
-  <audio id="sweetSound">
-    <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
-  </audio>
+<audio id="sweet"><source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
+<audio id="music"><source src="https://actions.google.com/sounds/v1/alarms/music_box.ogg"></audio>
 
-  <audio id="musicBoxSound">
-    <source src="https://actions.google.com/sounds/v1/alarms/music_box.ogg" type="audio/ogg">
-  </audio>
+<div class="wrap">
 
-  <div class="wrap">
-    <h1>Study Timer — Stopwatch & Pomodoro</h1>
+<h1>Study Stopwatch + Pomodoro</h1>
 
-    <div class="display" id="timeDisplay">00:00:00.00</div>
+<div class="display" id="time">00:00:00.00</div>
 
-    <div class="controls">
-      <button id="startBtn">Start</button>
-      <button id="pauseBtn" class="secondary">Pause</button>
-      <button id="resetBtn" class="secondary">Reset</button>
-    </div>
+<div class="controls">
+  <button id="s">Start</button>
+  <button id="p" class="secondary">Pause</button>
+  <button id="r" class="secondary">Reset</button>
+</div>
 
-    <div class="row">
-      <div>
-        <label>Mode:</label>
-        <span class="chip" id="modeChip">STOPWATCH</span>
-      </div>
+<div class="row">
+  <div>Mode: <span class="chip" id="chip">STOPWATCH</span></div>
+  <div>Work<br><input id="wm" type="number" value="25" min="1"></div>
+  <div>Break<br><input id="bm" type="number" value="5" min="1"></div>
+  <div>Cycles<br><input id="cy" type="number" value="4" min="1"></div>
+</div>
 
-      <div>
-        <label>Work (min)</label><br/>
-        <input type="number" id="workMins" value="25" min="1"/>
-      </div>
+<div class="row">
+  <button id="spm" class="small">Start Pomodoro</button>
+  <button id="stpm" class="small secondary">Stop Pomodoro</button>
+  <button id="lap" class="small secondary">Lap</button>
+</div>
 
-      <div>
-        <label>Break (min)</label><br/>
-        <input type="number" id="breakMins" value="5" min="1"/>
-      </div>
+<div class="status" id="st">Ready.</div>
 
-      <div>
-        <label>Cycles</label><br/>
-        <input type="number" id="cycles" value="4" min="1" style="width:60px"/>
-      </div>
-    </div>
-
-    <div class="row">
-      <button id="startPomBtn" class="small">Start Pomodoro</button>
-      <button id="stopPomBtn" class="small secondary">Stop Pomodoro</button>
-      <button id="lapBtn" class="small secondary">Lap</button>
-    </div>
-
-    <div class="status" id="status">Ready — select a mode and press Start.</div>
-  </div>
+</div>
 
 <script>
-
-// ---------- STOPWATCH ----------
-let running = false;
-let startTime = 0;
-let elapsed = 0;
-let timerInterval = null;
+/* ---------------- STOPWATCH ---------------- */
+let run=false, start=0, el=0, intv=null;
 
 function fmt(ms){
-  const c = Math.floor(ms/10);
-  const z = v => v.toString().padStart(2,'0');
-  return `${z(Math.floor(c/360000))}:${z(Math.floor(c/6000)%60)}:${z(Math.floor(c/100)%60)}.${z(c%100)}`;
+ let c=Math.floor(ms/10);
+ let z=v=>v.toString().padStart(2,"0");
+ return `${z(Math.floor(c/360000))}:${z(Math.floor(c/6000)%60)}:${z(Math.floor(c/100)%60)}.${z(c%100)}`;
 }
 
-function updateDisplay(){
-  let ms = elapsed;
-  if(running) ms += Date.now()-startTime;
-  document.getElementById("timeDisplay").textContent = fmt(ms);
+function upd(){
+ let ms=el;
+ if(run) ms+=Date.now()-start;
+ document.getElementById("time").textContent=fmt(ms);
 }
 
-function startStopwatch(){
-  if(running) return;
-  running = true;
-  startTime = Date.now();
-  timerInterval = setInterval(updateDisplay,40);
+function startSW(){
+ if(run) return;
+ run=true;
+ start=Date.now();
+ intv=setInterval(upd,40);
 }
 
-function pauseStopwatch(){
-  if(!running) return;
-  elapsed += Date.now()-startTime;
-  running = false;
-  clearInterval(timerInterval);
+function pauseSW(){
+ if(!run) return;
+ el+=Date.now()-start;
+ run=false;
+ clearInterval(intv);
+ upd();
 }
 
-function resetStopwatch(){
-  running = false;
-  elapsed = 0;
-  clearInterval(timerInterval);
-  updateDisplay();
+function resetSW(){
+ run=false;
+ el=0;
+ clearInterval(intv);
+ upd();
 }
 
-document.getElementById("startBtn").onclick = startStopwatch;
-document.getElementById("pauseBtn").onclick = pauseStopwatch;
-document.getElementById("resetBtn").onclick = resetStopwatch;
-
-
-// ---------- POMODORO ----------
-let pomActive = false;
+/* ---------------- POMODORO ---------------- */
+let pom=false;
+let cycle=1, total=4;
+let isWork=true;
+let remain=0;
+let pomInt=null;
 
 function play3x(id){
-  let a = document.getElementById(id);
-  a.play(); setTimeout(()=>a.play(),1200); setTimeout(()=>a.play(),2400);
+ let a=document.getElementById(id);
+ a.play(); setTimeout(()=>a.play(),1200); setTimeout(()=>a.play(),2400);
 }
 
-document.getElementById("startPomBtn").onclick = function () {
-  if (pomActive) return;
+document.getElementById("spm").onclick = ()=>{
+ if(pom) return;
 
-  const work = parseInt(workMins.value);
-  const brk = parseInt(breakMins.value);
-  const total = parseInt(cycles.value);
-  const longBreak = 15; // fixed long break
+ cycle=1;
+ total=parseInt(cy.value);
+ isWork=true;
+ pom=true;
 
-  if (work < 1 || brk < 1 || total < 1) {
-    alert("Enter valid minutes & cycles");
-    return;
-  }
+ chip.textContent="POMODORO";
+ st.textContent=`Cycle 1/${total} — Work`;
 
-  pomActive = true;
-  document.getElementById("modeChip").textContent = "POMODORO";
+ let work=parseInt(wm.value);
+ remain=work*60;
 
-  let cycle = 1;
-  let isWork = true;
+ resetSW();
+ startSW();
 
-  function run(minutes){
-    resetStopwatch();
-    startStopwatch();
+ pomInt=setInterval(()=>{
+   remain--;
+   let mm=String(Math.floor(remain/60)).padStart(2,'0');
+   let ss=String(remain%60).padStart(2,'0');
 
-    let sec = minutes * 60;
+   st.textContent=`${isWork?"Work":"Break"} — ${mm}:${ss} left (Cycle ${cycle}/${total})`;
 
-    let intv = setInterval(()=>{
-      sec--;
+   if(remain<=0){
+     if(isWork){
+       play3x("sweet");
+       isWork=false;
 
-      let mm = String(Math.floor(sec/60)).padStart(2,'0');
-      let ss = String(sec%60).padStart(2,'0');
+       let brk=parseInt(bm.value);
 
-      status.textContent = `${isWork?"Work":"Break"} — ${mm}:${ss} left (Cycle ${cycle}/${total})`;
+       // long break every 4 cycles
+       if(cycle%4===0) brk=15;
 
-      if(sec <= 0){
-        clearInterval(intv);
+       remain=brk*60;
+       st.textContent=`Work done—Break starts`;
+       resetSW(); startSW();
 
-        if(isWork){
-          play3x("sweetSound");
-          isWork = false;
+     } else {
+       play3x("music");
 
-          let next = (cycle % 4 === 0) ? longBreak : brk;
-          status.textContent = `Work Finished — Break Starts`;
+       cycle++;
+       if(cycle>total){
+         st.textContent=`Pomodoro complete (${total} cycles)`;
+         pom=false;
+         chip.textContent="STOPWATCH";
+         clearInterval(pomInt);
+         pauseSW();
+         return;
+       }
 
-          run(next);
-
-        } else {
-          play3x("musicBoxSound");
-          status.textContent = `Break Finished`;
-
-          cycle++;
+       isWork=true;
+       let work=parseInt(wm.value);
+       remain=work*60;
+       st.textContent
