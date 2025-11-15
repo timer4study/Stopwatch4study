@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Study Stopwatch & Pomodoro</title>
+
+  <title>Study Timer — Stopwatch & Pomodoro</title>
 
   <style>
     :root{--bg:#0f1724;--accent:#60a5fa;--muted:#94a3b8}
@@ -20,16 +21,18 @@
       background:rgba(255,255,255,0.03);
       border-radius:18px;
     }
-    h1{font-size:20px;margin:0 0 15px;color:var(--accent);text-align:center}
-
+    h1{
+      font-size:20px;
+      margin:0 0 15px;
+      color:var(--accent);
+      text-align:center;
+    }
     .display{
       font-size:42px;
       font-weight:700;
       text-align:center;
       padding:18px 0;
     }
-
-    /* OLD VERTICAL LAYOUT */
     .controls button{
       width:100%;
       padding:12px;
@@ -46,7 +49,6 @@
       border:1px solid rgba(255,255,255,0.1);
       color:var(--muted);
     }
-
     .row{
       margin-top:14px;
       display:flex;
@@ -54,7 +56,6 @@
       flex-wrap:wrap;
     }
     .row div{margin-top:10px}
-
     input{
       width:70px;
       padding:7px;
@@ -63,13 +64,11 @@
       background:transparent;
       color:white;
     }
-
     .small{
       margin-top:10px;
       padding:8px;
       font-size:13px;
     }
-
     .status{margin-top:12px;color:var(--muted);font-size:14px}
     .chip{
       padding:6px 10px;
@@ -82,12 +81,13 @@
 
 <body>
 
+<!-- SOUNDS -->
 <audio id="sweet"><source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"></audio>
 <audio id="music"><source src="https://actions.google.com/sounds/v1/alarms/music_box.ogg"></audio>
 
 <div class="wrap">
 
-<h1>Study Stopwatch + Pomodoro</h1>
+<h1>Study Timer — Stopwatch & Pomodoro</h1>
 
 <div class="display" id="time">00:00:00.00</div>
 
@@ -104,118 +104,4 @@
   <div>Cycles<br><input id="cy" type="number" value="4" min="1"></div>
 </div>
 
-<div class="row">
-  <button id="spm" class="small">Start Pomodoro</button>
-  <button id="stpm" class="small secondary">Stop Pomodoro</button>
-  <button id="lap" class="small secondary">Lap</button>
-</div>
-
-<div class="status" id="st">Ready.</div>
-
-</div>
-
-<script>
-/* ---------------- STOPWATCH ---------------- */
-let run=false, start=0, el=0, intv=null;
-
-function fmt(ms){
- let c=Math.floor(ms/10);
- let z=v=>v.toString().padStart(2,"0");
- return `${z(Math.floor(c/360000))}:${z(Math.floor(c/6000)%60)}:${z(Math.floor(c/100)%60)}.${z(c%100)}`;
-}
-
-function upd(){
- let ms=el;
- if(run) ms+=Date.now()-start;
- document.getElementById("time").textContent=fmt(ms);
-}
-
-function startSW(){
- if(run) return;
- run=true;
- start=Date.now();
- intv=setInterval(upd,40);
-}
-
-function pauseSW(){
- if(!run) return;
- el+=Date.now()-start;
- run=false;
- clearInterval(intv);
- upd();
-}
-
-function resetSW(){
- run=false;
- el=0;
- clearInterval(intv);
- upd();
-}
-
-/* ---------------- POMODORO ---------------- */
-let pom=false;
-let cycle=1, total=4;
-let isWork=true;
-let remain=0;
-let pomInt=null;
-
-function play3x(id){
- let a=document.getElementById(id);
- a.play(); setTimeout(()=>a.play(),1200); setTimeout(()=>a.play(),2400);
-}
-
-document.getElementById("spm").onclick = ()=>{
- if(pom) return;
-
- cycle=1;
- total=parseInt(cy.value);
- isWork=true;
- pom=true;
-
- chip.textContent="POMODORO";
- st.textContent=`Cycle 1/${total} — Work`;
-
- let work=parseInt(wm.value);
- remain=work*60;
-
- resetSW();
- startSW();
-
- pomInt=setInterval(()=>{
-   remain--;
-   let mm=String(Math.floor(remain/60)).padStart(2,'0');
-   let ss=String(remain%60).padStart(2,'0');
-
-   st.textContent=`${isWork?"Work":"Break"} — ${mm}:${ss} left (Cycle ${cycle}/${total})`;
-
-   if(remain<=0){
-     if(isWork){
-       play3x("sweet");
-       isWork=false;
-
-       let brk=parseInt(bm.value);
-
-       // long break every 4 cycles
-       if(cycle%4===0) brk=15;
-
-       remain=brk*60;
-       st.textContent=`Work done—Break starts`;
-       resetSW(); startSW();
-
-     } else {
-       play3x("music");
-
-       cycle++;
-       if(cycle>total){
-         st.textContent=`Pomodoro complete (${total} cycles)`;
-         pom=false;
-         chip.textContent="STOPWATCH";
-         clearInterval(pomInt);
-         pauseSW();
-         return;
-       }
-
-       isWork=true;
-       let work=parseInt(wm.value);
-       remain=work*60;
-       st.textContent
+<div class="row
