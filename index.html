@@ -104,4 +104,141 @@
   <div>Cycles<br><input id="cy" type="number" value="4" min="1"></div>
 </div>
 
-<div class="row
+<div class="row">
+  <button id="spm" class="small">Start Pomodoro</button>
+  <button id="stpm" class="small secondary">Stop Pomodoro</button>
+  <button id="lap" class="small secondary">Lap</button>
+</div>
+
+<div class="status" id="st">Ready.</div>
+
+</div>
+
+<script>
+
+/* ---------------- STOPWATCH ---------------- */
+let run=false, start=0, el=0, intv=null;
+
+function fmt(ms){
+ let c=Math.floor(ms/10);
+ let z=v=>v.toString().padStart(2,"0");
+ return `${z(Math.floor(c/360000))}:${z(Math.floor(c/6000)%60)}:${z(Math.floor(c/100)%60)}.${z(c%100)}`;
+}
+
+function upd(){
+ let ms=el;
+ if(run) ms+=Date.now()-start;
+ document.getElementById("time").textContent=fmt(ms);
+}
+
+function startSW(){
+ if(run) return;
+ run=true;
+ start=Date.now();
+ intv=setInterval(upd,40);
+}
+
+function pauseSW(){
+ if(!run) return;
+ el+=Date.now()-start;
+ run=false;
+ clearInterval(intv);
+ upd();
+}
+
+function resetSW(){
+ run=false;
+ el=0;
+ clearInterval(intv);
+ upd();
+}
+
+s.onclick=startSW;
+p.onclick=pauseSW;
+r.onclick=resetSW;
+
+/* ---------------- POMODORO ---------------- */
+let pom=false, cycle=1, total=4, isWork=true, remain=0, pomInt=null;
+
+function play3x(id){
+ let a=document.getElementById(id);
+ a.play(); setTimeout(()=>a.play(),1200); setTimeout(()=>a.play(),2400);
+}
+
+spm.onclick=()=>{
+
+ if(pom) return;
+
+ pom=true;
+ cycle=1;
+ total=parseInt(cy.value);
+ isWork=true;
+
+ chip.textContent="POMODORO";
+
+ let work=parseInt(wm.value);
+ remain=work*60;
+
+ resetSW();
+ startSW();
+
+ st.textContent=`Work — ${work} min (Cycle 1/${total})`;
+
+ pomInt=setInterval(()=>{
+   remain--;
+
+   let mm=String(Math.floor(remain/60)).padStart(2,'0');
+   let ss=String(remain%60).padStart(2,'0');
+
+   st.textContent=`${isWork?"Work":"Break"} — ${mm}:${ss} left (Cycle ${cycle}/${total})`;
+
+   if(remain<=0){
+
+     /* WORK FINISHED */
+     if(isWork){
+       play3x("sweet");
+       isWork=false;
+
+       let brk=parseInt(bm.value);
+       if(cycle % 4 === 0) brk = 15;
+
+       remain = brk * 60;
+       resetSW(); startSW();
+       st.textContent=`Work finished — Break starts`;
+
+     } else {
+       /* BREAK FINISHED */
+       play3x("music");
+       cycle++;
+
+       if(cycle > total){
+         st.textContent=`Pomodoro completed (${total} cycles)`;
+         clearInterval(pomInt);
+         pom=false;
+         chip.textContent="STOPWATCH";
+         pauseSW();
+         return;
+       }
+
+       isWork = true;
+       let work=parseInt(wm.value);
+       remain = work * 60;
+       resetSW(); startSW();
+       st.textContent=`Break finished — Work starts`;
+     }
+   }
+ },1000);
+};
+
+stpm.onclick=()=>{
+ clearInterval(pomInt);
+ pom=false;
+ chip.textContent="STOPWATCH";
+ st.textContent="Pomodoro stopped.";
+ pauseSW();
+};
+
+</script>
+
+</body>
+  </html>
