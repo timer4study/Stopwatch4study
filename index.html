@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -85,12 +86,32 @@
       border-radius:999px;
       font-weight:600;
     }
+
+    /* 🔥 RESPONSIVENESS (Mobile-First Adjustments) 🔥 */
+    @media (max-width: 450px) {
+      .wrap {
+        margin: 10px;
+        padding: 15px;
+      }
+      .display {
+        font-size: 56px;
+        padding: 30px 0;
+      }
+      .controls button,
+      .row button {
+        font-size: 15px;
+        padding: 10px;
+      }
+      .row {
+        justify-content: space-around;
+      }
+    }
+
   </style>
 </head>
 
 <body>
 
-<!-- AUDIO -->
 <audio id="workBeep">
   <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg">
 </audio>
@@ -103,7 +124,7 @@
 
 <h1>Study Stopwatch & Pomodoro</h1>
 
-<div class="display" id="time">00:00:00.00</div>
+<div class="display" id="time">00:00:00</div>
 
 <div class="controls">
   <button id="startBtn">Start</button>
@@ -133,10 +154,12 @@
 /* ---------------- STOPWATCH ---------------- */
 let running=false, start=0, elapsed=0, swInt=null;
 
+// MODIFIED: Formatting function now displays HH:MM:SS (seconds)
 function fmt(ms){
- let c=Math.floor(ms/10);
+ let c=Math.floor(ms/1000); // Total seconds
  let z=v=>v.toString().padStart(2,"0");
- return `${z(Math.floor(c/360000))}:${z(Math.floor(c/6000)%60)}:${z(Math.floor(c/100)%60)}.${z(c%100)}`;
+ // HH:MM:SS
+ return `${z(Math.floor(c/3600))}:${z(Math.floor(c/60)%60)}:${z(c%60)}`;
 }
 
 function update(){
@@ -149,7 +172,7 @@ function startSW(){
  if(running) return;
  running=true;
  start=Date.now();
- swInt=setInterval(update,40);
+ swInt=setInterval(update,1000); // Updated interval to 1000ms (1 second)
 }
 
 function pauseSW(){
@@ -266,3 +289,4 @@ document.getElementById("lap").onclick=()=>{
 
 </body>
   </html>
+  
