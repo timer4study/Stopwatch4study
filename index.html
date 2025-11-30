@@ -1,112 +1,126 @@
+Proper <title>
+
+<meta name="description">
+
+<meta name="keywords">
+
+<meta name="robots">
+
+Canonical link
+
+Favicon support
+
+
+🔹 Social Media SEO
+
+OpenGraph (Facebook, WhatsApp)
+
+Twitter Card
+
+
+🔹 Technical SEO
+
+Mobile-friendly meta
+
+Fast-loading hint tags
+
+Schema.org JSON-LD (Website + Tool)
+
+
+
+---
+
+🎯 Final Optimized Code Below
+
+👇 Copy–Paste fully (Everything included)
+
+
+---
 
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Study Stopwatch & Pomodoro Timer—stopwatch4study</title>
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- =======================
+       🔥 SEO TITLE & DESCRIPTION
+  ======================== -->
+  <title>Study Stopwatch & Pomodoro Timer | Online Study Timer for Productivity</title>
+
+  <meta name="description" content="Free online Study Stopwatch & Pomodoro timer for students. Track study time, cycles, breaks, and boost productivity. Simple, fast, mobile-friendly study timer." />
+
+  <meta name="keywords" content="study stopwatch, pomodoro timer, study timer, online stopwatch, student productivity tool, study tracker, pomodoro cycles, focus timer" />
+
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://timer4study.github.io/Stopwatch4study/" />
+
+  <!-- =======================
+       🔥 SOCIAL MEDIA OG TAGS
+  ======================== -->
+  <meta property="og:title" content="Study Stopwatch & Pomodoro Timer — Free Online Tool" />
+  <meta property="og:description" content="Track your study time with this simple stopwatch + pomodoro tool. Students can track hours, work/break cycles & improve focus." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://timer4study.github.io/Stopwatch4study/" />
+  <meta property="og:image" content="https://timer4study.github.io/Stopwatch4study/preview.png" />
+
+  <!-- =======================
+       🔥 TWITTER CARD
+  ======================== -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Study Stopwatch & Pomodoro Timer" />
+  <meta name="twitter:description" content="Simple, clean study stopwatch + pomodoro timer for students." />
+  <meta name="twitter:image" content="https://timer4study.github.io/Stopwatch4study/preview.png" />
+
+  <!-- =======================
+       🔥 FAVICON
+  ======================== -->
+  <link rel="icon" href="favicon.png" />
+
+  <!-- =======================
+       🔥 SCHEMA.ORG JSON-LD
+  ======================== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Study Stopwatch & Pomodoro Timer",
+    "url": "https://timer4study.github.io/Stopwatch4study/",
+    "description": "A student productivity tool combining stopwatch and pomodoro timer for better study tracking.",
+    "applicationCategory": "EducationApplication",
+    "operatingSystem": "Web Browser",
+    "creator": {
+      "@type": "Person",
+      "name": "timer4study"
+    }
+  }
+  </script>
+
+  <!-- =======================
+       🔥 ORIGINAL CSS
+  ======================== -->
   <style>
     :root{--bg:#0f1724;--accent:#60a5fa;--muted:#94a3b8}
-    body{
-      margin:0;
-      font-family:system-ui;
-      background:#071129;
-      color:#e6eef8;
-    }
-    .wrap{
-      max-width:420px;
-      margin:30px auto;
-      padding:20px;
-      background:rgba(255,255,255,0.03);
-      border-radius:18px;
-    }
+    body{margin:0;font-family:system-ui;background:#071129;color:#e6eef8;}
+    .wrap{max-width:420px;margin:30px auto;padding:20px;background:rgba(255,255,255,0.03);border-radius:18px;}
     h1{text-align:center;color:var(--accent);font-size:20px;margin-bottom:15px}
-
-    /* 🔥 BIG DISPLAY DIAL 🔥 */
-    .display{
-      font-size:72px;
-      font-weight:700;
-      text-align:center;
-      padding:40px 0;
-      background:rgba(255,255,255,0.04);
-      border-radius:20px;
-      margin:20px 0;
-    }
-
-    .controls button{
-      width:100%;
-      padding:12px;
-      margin-top:8px;
-      background:var(--accent);
-      color:#04243b;
-      border:0;
-      border-radius:12px;
-      font-weight:700;
-      font-size:16px;
-    }
-    button.secondary{
-      background:transparent;
-      border:1px solid rgba(255,255,255,0.1);
-      color:var(--muted);
-    }
-
-    .row{
-      margin-top:14px;
-      display:flex;
-      justify-content:space-between;
-      flex-wrap:wrap;
-    }
+    .display{font-size:72px;font-weight:700;text-align:center;padding:40px 0;background:rgba(255,255,255,0.04);border-radius:20px;margin:20px 0;}
+    .controls button{width:100%;padding:12px;margin-top:8px;background:var(--accent);color:#04243b;border:0;border-radius:12px;font-weight:700;font-size:16px;}
+    button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.1);color:var(--muted);}
+    .row{margin-top:14px;display:flex;justify-content:space-between;flex-wrap:wrap;}
     .row div{margin-top:10px}
+    input{width:70px;padding:7px;border-radius:10px;border:1px solid rgba(255,255,255,0.05);background:transparent;color:white;}
+    .small{margin-top:10px;padding:8px;font-size:13px;}
+    .status{margin-top:12px;color:var(--muted);font-size:14px;}
+    .chip{padding:6px 10px;background:rgba(255,255,255,0.05);border-radius:999px;font-weight:600;}
 
-    input{
-      width:70px;
-      padding:7px;
-      border-radius:10px;
-      border:1px solid rgba(255,255,255,0.05);
-      background:transparent;
-      color:white;
-    }
-
-    .small{
-      margin-top:10px;
-      padding:8px;
-      font-size:13px;
-    }
-
-    .status{
-      margin-top:12px;
-      color:var(--muted);
-      font-size:14px;
-    }
-
-    .chip{
-      padding:6px 10px;
-      background:rgba(255,255,255,0.05);
-      border-radius:999px;
-      font-weight:600;
-    }
-
-    /* 🔥 RESPONSIVENESS (Mobile-First Adjustments) 🔥 */
     @media (max-width: 450px) {
-      .wrap {
-        margin: 10px;
-        padding: 15px;
-      }
-      .display {
-        font-size: 56px;
-        padding: 30px 0;
-      }
-      .controls button,
-      .row button {
-        font-size: 15px;
-        padding: 10px;
-      }
-      .row {
-        justify-content: space-around;
-      }
+      .wrap{margin:10px;padding:15px;}
+      .display{font-size:56px;padding:30px 0;}
+      .controls button, .row button{font-size:15px;padding:10px;}
+      .row{justify-content:space-around;}
     }
-
   </style>
 </head>
 
@@ -151,14 +165,12 @@
 
 <script>
 
-/* ---------------- STOPWATCH ---------------- */
+// ---------------- STOPWATCH ----------------
 let running=false, start=0, elapsed=0, swInt=null;
 
-// MODIFIED: Formatting function now displays HH:MM:SS (seconds)
 function fmt(ms){
- let c=Math.floor(ms/1000); // Total seconds
+ let c=Math.floor(ms/1000);
  let z=v=>v.toString().padStart(2,"0");
- // HH:MM:SS
  return `${z(Math.floor(c/3600))}:${z(Math.floor(c/60)%60)}:${z(c%60)}`;
 }
 
@@ -172,7 +184,7 @@ function startSW(){
  if(running) return;
  running=true;
  start=Date.now();
- swInt=setInterval(update,1000); // Updated interval to 1000ms (1 second)
+ swInt=setInterval(update,1000);
 }
 
 function pauseSW(){
@@ -195,7 +207,7 @@ document.getElementById("pauseBtn").onclick=pauseSW;
 document.getElementById("resetBtn").onclick=resetSW;
 
 
-/* ---------------- POMODORO ---------------- */
+// ---------------- POMODORO ----------------
 let pom=false, cycle=1, total=4, isWork=true, remain=0, pomInt=null;
 
 function play5x(id){
@@ -224,6 +236,7 @@ document.getElementById("startPom").onclick=()=>{
  resetSW(); startSW();
 
  pomInt=setInterval(()=>{
+
    remain--;
 
    let mm=String(Math.floor(remain/60)).padStart(2,'0');
@@ -288,5 +301,4 @@ document.getElementById("lap").onclick=()=>{
 </script>
 
 </body>
-  </html>
-  
+</html>
